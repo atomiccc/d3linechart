@@ -30,12 +30,7 @@ var data = [
 	{ date: '2017-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
 ];
 
-var width = 500;
-var minDays = 4;
-var maxDays = 4;
-
-var svg = d3.select('#linechart').append('svg').attr('height', '300px').attr('width', '500px');
-
+var svg = d3.select('#linechart').append('svg').attr('height', '250px').attr('width', '500px');
 
 var xExtent = d3.extent(data, function(d, i) { return d.date; });
 
@@ -55,26 +50,23 @@ var yMax = d3.max(yValues, function(d, i) { return d; });
 var xOrigScale = d3.scaleTime()
 	.domain([ new Date(xExtent[0]), new Date(xExtent[1]) ])
 	.range([40,495]);
-var xScale = xOrigScale.copy();
 
-// var xScale = d3.scaleTime()
-// 	.domain([ new Date(xExtent[0]), new Date(xExtent[1]) ])
-// 	.range([40,495]);
+var xScale = xOrigScale.copy();
 
 var yScale = d3.scaleLinear()
 	.domain([yMin, yMax])
-	.range([220,0]);
+	.range([220,2]);
 
 
 var xAxis = d3.axisBottom(xScale).ticks(6);
 var yAxis = d3.axisLeft(yScale);
 
-var gX = svg.append('g')
+var xAxisG = svg.append('g')
 	.attr('id', 'xAxisG')
 	.attr('transform', 'translate(0,220)')
 	.call(xAxis);
 
-var gY = svg.append('g')
+var yAxisG = svg.append('g')
 	.attr('id', 'yAxisG')
 	.attr('transform', 'translate(40,0)')
 	.call(yAxis);
@@ -82,9 +74,10 @@ var gY = svg.append('g')
 var color = d3.scaleOrdinal()
     .range(['#FF4848', '#FF9C42', '#FFF06A', '#24E0FB', '#36F200']);
 
-// var path, line;
 var lines = {};
 var paths = {};
+var focii = {};
+var bisects = {};
 
 for (key in data[0]) {
 
@@ -111,15 +104,41 @@ for (key in data[0]) {
 		var totalLength = path.node().getTotalLength();
 
 		path
-			.attr("stroke-dasharray", totalLength + " " + totalLength)
-			.attr("stroke-dashoffset", totalLength)
+			.attr('stroke-dasharray', totalLength + ' ' + totalLength)
+			.attr('stroke-dashoffset', totalLength)
 			.transition()
 			.duration(2000)
 		    .ease(d3.easeCubicInOut)
-			.attr("stroke-dashoffset", 0);
-
+			.attr('stroke-dashoffset', 0);
 
 		paths[key] = path;
+
+		var bisectDate = d3.bisector(function(d) { return new Date(d.date); }).left;
+
+
+
+		var focus = svg.append('g')
+			.attr('class', 'focus')
+			.style('display', 'none');
+
+		focii[key] = focus;
+
+		focus.append('circle')
+			.attr('r', 3.5)
+			.attr('stroke', function(d) { return color(key); })
+			.attr('fill', function(d) { return color(key); });
+
+		focus.append('text')
+			.attr('x', 9)
+			.attr('dy', '.35em');
+
+		svg.append("rect")
+			.attr("class", "overlay")
+			.attr("width", 500)
+			.attr("height", 240)
+			.on("mouseover", function() { focii[key].style("display", null); })
+			.on("mouseout", function() { focii[key].style("display", "none"); })
+			.on("mousemove", mousemove);
 	}
 
 }
@@ -130,12 +149,12 @@ var clipPath = svg.append('clipPath')
   	.append('rect')
     .attr('x', 40)
     .attr('y', 0)
-    .attr('height', 300)
+    .attr('height', 240)
     .attr('width', 500);
 
 var zoom = d3.zoom()
-    .scaleExtent([1, 20])
-    .on("zoom", zoomed);
+    .scaleExtent([1, 10])
+    .on('zoom', zoomed);
 
 svg.call(zoom);
 
@@ -144,7 +163,7 @@ function zoomed() {
 
 	xScale = d3.event.transform.rescaleX(xOrigScale);
 
-	gX.call(xAxis.scale(d3.event.transform.rescaleX(xOrigScale)));
+	xAxisG.call(xAxis.scale(d3.event.transform.rescaleX(xOrigScale)));
 
 	for (key in data[0]) {
   		if (key !== 'date') {
@@ -155,45 +174,37 @@ function zoomed() {
   			totalLength = path.node().getTotalLength();
 
   			path
-  				.attr("stroke-dasharray", totalLength + " " + totalLength)
-  				.attr("stroke-dashoffset", totalLength)
-  				.attr("stroke-dashoffset", 0);
+  				.attr('stroke-dasharray', totalLength + ' ' + totalLength)
+  				.attr('stroke-dashoffset', totalLength)
+  				.attr('stroke-dashoffset', 0);
 
   			path.attr('d', line(data));
   			path.attr('clip-path', 'url(#clip)');
+
   		}
   	}
+	
 }
 
-		// svg.append('g')
-		// 	.selectAll('circle')
-		// 	.data(data)
-		// 	.enter()
-		// 	.append('circle')
-		// 	.attr('fill', function(d) { return color(key); }) //'#24E0FB')
-		// 	.attr('r', 0)
-		// 	.attr('cx', function(d, i) {
-		// 		return xScale(new Date(d.date));
-		// 	})
-		// 	.attr('cy', function(d, i) {
-		// 		return yScale(d[key]);
-		// 	})
-		// 	.on('mouseover', function(d, i) {
-		// 		d3.select(this)
-		// 			.transition()
-		// 			.duration(300)
-		// 			.attr('r', 50);
-		// 	})
-		// 	.on('mouseleave', function(d, i) {
-		// 		d3.select(this)
-		// 			.transition()
-		// 			.duration(300)
-		// 			.attr('r', 2);
-		// 	})
-		// 	.transition()
-		// 	.duration(500)
-		// 	.delay(1800)
-		// 	.attr('r', 3)
-		// 	.transition()
-		// 	.duration(500)
-		// 	.attr('r', 2);
+
+function mousemove() {
+	for (key in data[0]) {
+	  	if (key !== 'date') {
+
+			var x0 = xScale.invert(d3.mouse(this)[0]),
+				i = bisectDate(data, x0, 1),
+				d0 = data[i - 1],
+				d1 = data[i],
+				d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+
+			var focus = focii[key];
+			console.log(key, focus);
+			// svg.appendChild(focus);
+
+			focus.style('display', 'block');
+			focus.attr("transform", "translate(" + xScale( new Date(d.date)) + "," + yScale(d[key]) + ")");
+			focus.select("text").text(d[key]);
+		}
+	}
+}

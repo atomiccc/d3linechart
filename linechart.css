@@ -1,5 +1,24 @@
 #linechart {
-	height: 240px;
+	height: 250px;
 	width: 500px;
 	margin: 0 auto;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+}
+
+.focus rect {
+	fill: white;
+}
+.focus text {
+	font-size: 10px;
+	font-family: sans-serif;
+	/*fill: white;*/
+	stroke: black;
+	color: black;
 }
