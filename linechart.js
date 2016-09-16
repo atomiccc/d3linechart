@@ -30,8 +30,12 @@ var data = [
 	{ date: '2017-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
 ];
 
+var width = 500;
+var minDays = 4;
+var maxDays = 4;
 
-var svg = d3.select('#linechart').append('svg').attr('height', '500px').attr('width', '500px');
+var svg = d3.select('#linechart').append('svg').attr('height', '300px').attr('width', '500px');
+
 
 var xExtent = d3.extent(data, function(d, i) { return d.date; });
 
@@ -48,30 +52,39 @@ data.forEach(function(d) {
 var yMin = d3.min(yValues, function(d, i) { return d; });
 var yMax = d3.max(yValues, function(d, i) { return d; });
 
-var xScale = d3.scaleTime()
+var xOrigScale = d3.scaleTime()
 	.domain([ new Date(xExtent[0]), new Date(xExtent[1]) ])
 	.range([40,495]);
+var xScale = xOrigScale.copy();
+
+// var xScale = d3.scaleTime()
+// 	.domain([ new Date(xExtent[0]), new Date(xExtent[1]) ])
+// 	.range([40,495]);
 
 var yScale = d3.scaleLinear()
 	.domain([yMin, yMax])
-	.range([460,240]);
+	.range([220,0]);
 
 
-var xAxis = d3.axisBottom(xScale);
+var xAxis = d3.axisBottom(xScale).ticks(6);
 var yAxis = d3.axisLeft(yScale);
 
-svg.append('g')
+var gX = svg.append('g')
 	.attr('id', 'xAxisG')
-	.attr('transform', 'translate(0,460)')
+	.attr('transform', 'translate(0,220)')
 	.call(xAxis);
 
-svg.append('g')
+var gY = svg.append('g')
 	.attr('id', 'yAxisG')
 	.attr('transform', 'translate(40,0)')
 	.call(yAxis);
 
 var color = d3.scaleOrdinal()
     .range(['#FF4848', '#FF9C42', '#FFF06A', '#24E0FB', '#36F200']);
+
+// var path, line;
+var lines = {};
+var paths = {};
 
 for (key in data[0]) {
 
@@ -86,8 +99,11 @@ for (key in data[0]) {
 			})
 			.curve(d3.curveCatmullRom.alpha(0.5));
 
-		var path = svg.append('g').append('path')
+		lines[key] = line;
+
+		path = svg.append('g').append('path')
 			.attr('d', line(data))
+			.attr('id', key)
 			.attr('fill', 'none')
 			.attr('stroke', function(d) { return color(key); }) //'#36F200')
 			.attr('stroke-width', 2);
@@ -102,38 +118,82 @@ for (key in data[0]) {
 		    .ease(d3.easeCubicInOut)
 			.attr("stroke-dashoffset", 0);
 
-		svg.append('g')
-			.selectAll('circle')
-			.data(data)
-			.enter()
-			.append('circle')
-			.attr('fill', function(d) { return color(key); }) //'#24E0FB')
-			.attr('r', 0)
-			.attr('cx', function(d, i) {
-				return xScale(new Date(d.date));
-			})
-			.attr('cy', function(d, i) {
-				return yScale(d[key]);
-			})
-			.on('mouseover', function(d, i) {
-				d3.select(this)
-					.transition()
-					.duration(300)
-					.attr('r', 50);
-			})
-			.on('mouseleave', function(d, i) {
-				d3.select(this)
-					.transition()
-					.duration(300)
-					.attr('r', 2);
-			})
-			.transition()
-			.duration(500)
-			.delay(1800)
-			.attr('r', 3)
-			.transition()
-			.duration(500)
-			.attr('r', 2);
+
+		paths[key] = path;
 	}
 
 }
+
+
+var clipPath = svg.append('clipPath')
+  	.attr('id', 'clip')
+  	.append('rect')
+    .attr('x', 40)
+    .attr('y', 0)
+    .attr('height', 300)
+    .attr('width', 500);
+
+var zoom = d3.zoom()
+    .scaleExtent([1, 20])
+    .on("zoom", zoomed);
+
+svg.call(zoom);
+
+function zoomed() {
+	console.log('zoomed');
+
+	xScale = d3.event.transform.rescaleX(xOrigScale);
+
+	gX.call(xAxis.scale(d3.event.transform.rescaleX(xOrigScale)));
+
+	for (key in data[0]) {
+  		if (key !== 'date') {
+
+  			line = lines[key];
+  			path = paths[key];
+
+  			totalLength = path.node().getTotalLength();
+
+  			path
+  				.attr("stroke-dasharray", totalLength + " " + totalLength)
+  				.attr("stroke-dashoffset", totalLength)
+  				.attr("stroke-dashoffset", 0);
+
+  			path.attr('d', line(data));
+  			path.attr('clip-path', 'url(#clip)');
+  		}
+  	}
+}
+
+		// svg.append('g')
+		// 	.selectAll('circle')
+		// 	.data(data)
+		// 	.enter()
+		// 	.append('circle')
+		// 	.attr('fill', function(d) { return color(key); }) //'#24E0FB')
+		// 	.attr('r', 0)
+		// 	.attr('cx', function(d, i) {
+		// 		return xScale(new Date(d.date));
+		// 	})
+		// 	.attr('cy', function(d, i) {
+		// 		return yScale(d[key]);
+		// 	})
+		// 	.on('mouseover', function(d, i) {
+		// 		d3.select(this)
+		// 			.transition()
+		// 			.duration(300)
+		// 			.attr('r', 50);
+		// 	})
+		// 	.on('mouseleave', function(d, i) {
+		// 		d3.select(this)
+		// 			.transition()
+		// 			.duration(300)
+		// 			.attr('r', 2);
+		// 	})
+		// 	.transition()
+		// 	.duration(500)
+		// 	.delay(1800)
+		// 	.attr('r', 3)
+		// 	.transition()
+		// 	.duration(500)
+		// 	.attr('r', 2);
