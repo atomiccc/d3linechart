@@ -1,5 +1,5 @@
 #linechart {
-	height: 250px;
+	height: 300px;
 	width: 500px;
 	margin: 0 auto;
 }
@@ -9,16 +9,11 @@
   pointer-events: all;
 }
 
-.focus circle {
-}
-
-.focus rect {
-	fill: white;
-}
-.focus text {
+text {
 	font-size: 10px;
 	font-family: sans-serif;
-	/*fill: white;*/
-	stroke: black;
-	color: black;
+}
+
+.legend-text {
+	font-size: 11px;
 }

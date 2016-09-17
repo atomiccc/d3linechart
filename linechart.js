@@ -30,7 +30,7 @@ var data = [
 	{ date: '2017-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
 ];
 
-var svg = d3.select('#linechart').append('svg').attr('height', '250px').attr('width', '500px');
+var svg = d3.select('#linechart').append('svg').attr('height', '300px').attr('width', '500px');
 
 var xExtent = d3.extent(data, function(d, i) { return d.date; });
 
@@ -71,13 +71,27 @@ var yAxisG = svg.append('g')
 	.attr('transform', 'translate(40,0)')
 	.call(yAxis);
 
+
 var color = d3.scaleOrdinal()
     .range(['#FF4848', '#FF9C42', '#FFF06A', '#24E0FB', '#36F200']);
 
+var linesG = svg.append('g');
+
+var legend = svg.append('g')
+	.attr('id', 'legend')
+	.attr('transform', 'translate(60, 250)')
+	.style('opacity', '0');
+
+
+var dateText = legend.append('text')
+	.attr('id', 'date-text')
+	.attr('class', 'legend-text')
+	.attr('x', 0)
+	.attr('y', 20);
+
 var lines = {};
 var paths = {};
-var focii = {};
-var bisects = {};
+var index = Object.keys(data[0]).length - 1;
 
 for (key in data[0]) {
 
@@ -94,11 +108,11 @@ for (key in data[0]) {
 
 		lines[key] = line;
 
-		path = svg.append('g').append('path')
+		path = linesG.append('path')
 			.attr('d', line(data))
 			.attr('id', key)
 			.attr('fill', 'none')
-			.attr('stroke', function(d) { return color(key); }) //'#36F200')
+			.attr('stroke', function(d) { return color(key); })
 			.attr('stroke-width', 2);
 
 		var totalLength = path.node().getTotalLength();
@@ -113,36 +127,29 @@ for (key in data[0]) {
 
 		paths[key] = path;
 
-		var bisectDate = d3.bisector(function(d) { return new Date(d.date); }).left;
 
+		legend.append('rect')
+			.attr('class', 'legend-text')
+			.attr('fill', color(key))
+			.attr('x', function() {
+				return 60 * index + 70;
+			})
+			.attr('height', 20)
+			.attr('width', 20)
+			.attr('y', 5);
 
+		legend.append('text')
+			.attr('id', 'text' + key)
+			.attr('class', 'legend-text')
+			.attr('fill', 'black')
+			.attr('x', function() {
+				return 60 * index + 93;
+			})
+			.attr('y', 20);
 
-		var focus = svg.append('g')
-			.attr('class', 'focus')
-			.style('display', 'none');
-
-		focii[key] = focus;
-
-		focus.append('circle')
-			.attr('r', 3.5)
-			.attr('stroke', function(d) { return color(key); })
-			.attr('fill', function(d) { return color(key); });
-
-		focus.append('text')
-			.attr('x', 9)
-			.attr('dy', '.35em');
-
-		svg.append("rect")
-			.attr("class", "overlay")
-			.attr("width", 500)
-			.attr("height", 240)
-			.on("mouseover", function() { focii[key].style("display", null); })
-			.on("mouseout", function() { focii[key].style("display", "none"); })
-			.on("mousemove", mousemove);
+		index--;
 	}
-
 }
-
 
 var clipPath = svg.append('clipPath')
   	.attr('id', 'clip')
@@ -151,6 +158,36 @@ var clipPath = svg.append('clipPath')
     .attr('y', 0)
     .attr('height', 240)
     .attr('width', 500);
+
+var focus = svg.append('g')
+	.attr('class', 'focus')
+	.style('display', 'none');
+
+focus.append('line')
+	.attr('id', 'dotted-line')
+	.attr('x1', 0)
+	.attr('y1', 0)
+	.attr('x2', 0)
+	.attr('y2', 220)
+	.attr('stroke', 'black')
+	.attr('stroke-dasharray', '1, 2');
+
+
+svg.append("rect")
+	.attr("class", "overlay")
+	.attr("width", 500)
+	.attr("height", 240)
+	.on("mouseout", function() { 
+		focus.style('display', 'none');
+		legend
+			.transition()
+			.duration(100)
+			.style('opacity', '0');
+	})
+	.on("mousemove", mousemove)
+	.style('cursor', 'move')
+	.attr('clip-path', 'url(#clip)');
+
 
 var zoom = d3.zoom()
     .scaleExtent([1, 10])
@@ -187,24 +224,37 @@ function zoomed() {
 }
 
 
+var bisectDate = d3.bisector(function(d) { return new Date(d.date); }).left;
+
 function mousemove() {
+	var x = d3.mouse(this)[0];
+
+	var x0 = xScale.invert(d3.mouse(this)[0]),
+		i = bisectDate(data, x0, 1),
+		d0 = data[i - 1],
+		d1 = data[i],
+		d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+	focus.style('display', 'block');
+	dateText.style('display', 'block');
+	legend
+		.transition()
+		.duration(90)
+		.style('opacity', '1');
+
+	focus.attr("transform", "translate(" + xScale( new Date(d.date)) + ",0)");
+
+	var date = new Date(d.date);
+	date = date.toUTCString().split(' ');
+	date = date[0] + ' ' + date[1] + ' ' + date[2] + ' ' + date[3];
+
+	dateText.text(date);
+
 	for (key in data[0]) {
 	  	if (key !== 'date') {
+	  		svg.select('#text' + key)
+	  			.text(Number(d[key]).toLocaleString());
 
-			var x0 = xScale.invert(d3.mouse(this)[0]),
-				i = bisectDate(data, x0, 1),
-				d0 = data[i - 1],
-				d1 = data[i],
-				d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-
-
-			var focus = focii[key];
-			console.log(key, focus);
-			// svg.appendChild(focus);
-
-			focus.style('display', 'block');
-			focus.attr("transform", "translate(" + xScale( new Date(d.date)) + "," + yScale(d[key]) + ")");
-			focus.select("text").text(d[key]);
 		}
 	}
 }
