@@ -2,33 +2,46 @@ function num(max) {
 	return Math.abs(Math.floor(Math.random() * max) + (max - 200));
 }
 
-var data = [
-	{ date: '2015-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2015-10-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2015-11-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2015-12-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-01-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-02-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-03-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-04-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-05-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-06-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-07-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-08-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-10-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-11-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2016-12-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-01-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-02-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-03-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-04-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-05-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-06-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-07-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-08-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-	{ date: '2017-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
-];
+var data = [];
+
+d3.timeDay.range(new Date(2015, 0, 1), new Date(2016, 0, 1), 1).forEach(function(date) {
+	data.push({
+		date: date,
+		similarityRed: num(100), 
+		similarityOrange: num(200), 
+		similarityYellow: num(300), 
+		similarityBlue: num(400), 
+		similarityGreen: num(700)
+	});
+});
+
+// var data = [
+// 	{ date: '2015-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2015-10-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2015-11-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2015-12-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-01-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-02-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-03-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-04-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-05-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-06-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-07-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-08-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-10-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-11-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2016-12-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-01-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-02-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-03-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-04-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-05-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-06-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-07-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-08-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// 	{ date: '2017-09-01', similarityRed: num(100), similarityOrange: num(200), similarityYellow: num(300), similarityBlue: num(400), similarityGreen: num(700) },
+// ];
 
 var svg = d3.select('#linechart').append('svg').attr('height', '300px').attr('width', '500px');
 
